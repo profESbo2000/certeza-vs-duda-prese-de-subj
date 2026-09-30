@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detector de Opiniones: Indicativo vs Subjuntivo - ELE</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        comic: ['Bangers', 'cursive'],
+                        sans: ['Fredoka', 'sans-serif'],
+                    },
+                    colors: {
+                        pop: {
+                            yellow: '#facc15',
+                            pink: '#ec4899',
+                            cyan: '#06b6d4',
+                            purple: '#a855f7',
+                            orange: '#f97316',
+                            green: '#22c55e'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #a855f7;
+            background-image: radial-gradient(#c084fc 2px, transparent 2px);
+            background-size: 24px 24px;
+        }
+
+        .box-comic {
+            background: #ffffff;
+            border: 3.5px solid #000000;
+            box-shadow: 6px 6px 0px #000000;
+            border-radius: 1.25rem;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .btn-comic {
+            border: 3px solid #000000;
+            box-shadow: 3.5px 3.5px 0px #000000;
+            border-radius: 0.85rem;
+            font-family: 'Bangers', cursive;
+            letter-spacing: 0.05em;
+            transition: all 0.1s ease;
+        }
+        .btn-comic:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px #000000;
+        }
+
+        .thought-bubble {
+            position: relative;
+            background: #ffffff;
+            border: 3px solid #000;
+            border-radius: 20px;
+            padding: 15px 20px;
+        }
+        .thought-bubble:after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 30px;
+            border-width: 15px 15px 0;
+            border-style: solid;
+            border-color: #fff transparent;
+            display: block;
+            width: 0;
+        }
+        .thought-bubble:before {
+            content: '';
+            position: absolute;
+            bottom: -19px;
+            left: 28px;
+            border-width: 17px 17px 0;
+            border-style: solid;
+            border-color: #000 transparent;
+            display: block;
+            width: 0;
+        }
+
+        .correct-card {
+            background-color: #dcfce7 !important;
+            border-color: #16a34a !important;
+        }
+        .incorrect-card {
+            background-color: #ffe4e6 !important;
+            border-color: #e11d48 !important;
+        }
+    </style>
+</head>
+<body class="text-slate-900 min-h-screen flex flex-col font-sans pb-12">
+
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-50 bg-white border-b-4 border-black px-4 py-3 shadow-md">
+        <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-pop-yellow text-black rounded-2xl border-3 border-black flex items-center justify-center font-comic text-2xl shadow-[3px_3px_0px_#000]">
+                    🕵️‍♂️
+                </div>
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-comic tracking-wide text-black leading-none">
+                        EL DETECTOR DE OPINIONES
+                    </h1>
+                    <span class="text-xs font-bold bg-pop-pink text-white border border-black px-2 py-0.5 rounded-full">
+                        ¿Creo que... o No creo que...?
+                    </span>
+                </div>
+            </div>
+
+            <!-- Tabs de Navegación -->
+            <div class="flex items-center gap-2">
+                <button id="nav-theory" onclick="switchSection('theory')" class="tab-btn btn-comic bg-pop-cyan text-white px-3 py-2 text-sm sm:text-base">
+                    <i class="fa-solid fa-brain mr-1"></i> 1. Escáner Mental
+                </button>
+                <button id="nav-fill" onclick="switchSection('fill')" class="tab-btn btn-comic bg-white text-black px-3 py-2 text-sm sm:text-base">
+                    <i class="fa-solid fa-puzzle-piece mr-1"></i> 2. Misión (8)
+                </button>
+                <button id="nav-game" onclick="switchSection('game')" class="tab-btn btn-comic bg-white text-black px-3 py-2 text-sm sm:text-base">
+                    <i class="fa-solid fa-bolt mr-1"></i> 3. Arcade Lie Detector
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-8 flex-grow w-full">
+
+        <!-- SECCIÓN 1: TEORÍA TIPO CÓMIC CON INTERRUPTOR -->
+        <section id="sec-theory" class="space-y-6">
+            
+            <div class="box-comic p-6 sm:p-8 bg-white relative">
+                <div class="flex flex-wrap items-center justify-between border-b-4 border-black pb-4 mb-6 gap-2">
+                    <h2 class="text-2xl sm:text-4xl font-comic text-black flex items-center gap-2">
+                        <span>💡 La Regla de la Certeza vs La Duda</span>
+                    </h2>
+                    <span class="bg-pop-yellow text-black font-comic px-3 py-1 text-sm rounded-lg border-2 border-black">
+                        ¡Especial Espías ELE!
+                    </span>
+                </div>
+
+                <!-- Ilustración Dinámica Interactiva -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    
+                    <div class="space-y-4">
+                        <p class="text-base sm:text-lg font-bold text-slate-800 leading-relaxed">
+                            Cuando afirmas una opinión personal en la que **crees**, usas el mapa de la realidad: <span class="bg-pop-green/30 px-2 py-1 rounded-md border border-green-800 text-green-900 font-extrabold">INDICATIVO</span>.
+                        </p>
+                        <p class="text-base sm:text-lg font-bold text-slate-800 leading-relaxed">
+                            Pero si **niegas** esa opinión o la pones en **duda**, activas la zona de hipótesis: <span class="bg-pop-pink/30 px-2 py-1 rounded-md border border-pink-800 text-pink-900 font-extrabold">SUBJUNTIVO</span>.
+                        </p>
+
+                        <div class="p-4 bg-slate-100 border-3 border-black rounded-xl space-y-2">
+                            <span class="font-comic text-lg text-black block">🚨 Fórmulas de Negación (Subjuntivo):</span>
+                            <div class="flex flex-wrap gap-2 text-xs font-bold">
+                                <span class="bg-pop-pink text-white px-2.5 py-1 rounded-md border border-black">No creo que...</span>
+                                <span class="bg-pop-pink text-white px-2.5 py-1 rounded-md border border-black">No pienso que...</span>
+                                <span class="bg-pop-pink text-white px-2.5 py-1 rounded-md border border-black">No es verdad que...</span>
+                                <span class="bg-pop-pink text-white px-2.5 py-1 rounded-md border border-black">No es cierto que...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cuadro Interactivo tipo Personaje de Cómic -->
+                    <div class="box-comic p-6 bg-pop-cyan/20 border-3 border-black flex flex-col items-center text-center relative space-y-4">
+                        
+                        <div class="thought-bubble w-full text-center">
+                            <p id="thought-text" class="font-comic text-xl sm:text-2xl text-black">
+                                "NO CREO QUE PUEDA ARREGLAR ESTO..."
+                            </p>
+                        </div>
+
+                        <div id="character-avatar" class="text-7xl my-2 transition-transform duration-300">
+                            😰
+                        </div>
+
+                        <!-- Selector interactivo de Modo -->
+                        <div class="grid grid-cols-2 gap-2 w-full pt-2">
+                            <button onclick="toggleComicMode('afirmativo')" class="btn-comic bg-pop-green text-white py-2 text-sm sm:text-base">
+                                👍 AFIRMATIVO<br><span class="text-[10px] font-sans text-emerald-950 font-bold">(Indicativo)</span>
+                            </button>
+                            <button onclick="toggleComicMode('negativo')" class="btn-comic bg-pop-pink text-white py-2 text-sm sm:text-base">
+                                🙅‍♂️ NEGATIVO<br><span class="text-[10px] font-sans text-rose-950 font-bold">(Subjuntivo)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="mt-8 text-center">
+                    <button onclick="switchSection('fill')" class="btn-comic bg-pop-yellow text-black px-8 py-3 text-lg hover:bg-yellow-400">
+                        ¡Comenzar la Misión de los 8 Verbos! <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- SECCIÓN 2: EJERCICIO 9 (COMPLETAR LAS 8 ORACIONES SIN BANCO DE VERBOS) -->
+        <section id="sec-fill" class="space-y-6 hidden">
+            <div class="box-comic p-6 sm:p-8 bg-white">
+                
+                <div class="flex flex-wrap items-center justify-between border-b-4 border-black pb-4 mb-6 gap-2">
+                    <div>
+                        <span class="bg-pop-purple text-white font-comic px-3 py-1 text-sm rounded-lg border-2 border-black">
+                            Misión 9 de la Guía
+                        </span>
+                        <h3 class="text-2xl sm:text-3xl font-comic text-black mt-1">
+                            Completa las oraciones conjugando correctamente
+                        </h3>
+                    </div>
+                </div>
+
+                <!-- Lista de Ejercicios -->
+                <div class="grid grid-cols-1 gap-4" id="fill-questions-container">
+                    <!-- Inyectado dinámicamente -->
+                </div>
+
+                <div class="flex flex-wrap items-center justify-center gap-4 mt-8 pt-6 border-t-4 border-black">
+                    <button onclick="checkFillSection()" class="btn-comic bg-pop-pink text-white px-8 py-3 text-lg">
+                        <i class="fa-solid fa-shield-halved mr-2"></i> Evaluar Evidencias
+                    </button>
+                    <button onclick="resetFillSection()" class="btn-comic bg-white text-black px-6 py-3 text-sm">
+                        <i class="fa-solid fa-rotate-left mr-2"></i> Reiniciar
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: MINIJUEGO ARCADE "DETECTOR DE MENTIRAS" -->
+        <section id="sec-game" class="space-y-6 hidden">
+            <div class="box-comic p-6 sm:p-8 bg-white text-center">
+                
+                <span class="bg-pop-orange text-white font-comic px-3 py-1 text-sm rounded-lg border-2 border-black">
+                    Minijuego Arcade
+                </span>
+                <h3 class="text-3xl sm:text-4xl font-comic text-black mt-1">⚡ LIE DETECTOR 3000</h3>
+                <p class="text-sm font-bold text-slate-600 mb-6">
+                    Escucha el encabezado y decide instantáneamente qué modo gramatical exige la mente del sospechoso.
+                </p>
+
+                <!-- Tarjeta del Juego -->
+                <div id="arcade-card" class="box-comic p-6 sm:p-8 bg-pop-cyan/20 border-4 border-black max-w-xl mx-auto min-h-[240px] flex flex-col justify-between items-center my-4">
+                    <div class="w-full flex justify-between text-xs font-bold font-comic text-slate-600">
+                        <span id="arcade-step">MUESTRA 1 DE 8</span>
+                        <span id="arcade-score" class="text-pop-pink text-sm">PUNTOS: 0</span>
+                    </div>
+
+                    <div id="arcade-text" class="text-xl sm:text-2xl font-bold text-black my-6">
+                        <!-- Texto inyectado por JS -->
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 w-full">
+                        <button onclick="answerArcade('indicativo')" class="btn-comic bg-pop-green text-white py-3 text-base">
+                            🟢 CERTEZA<br><span class="text-xs font-sans font-normal">(Indicativo)</span>
+                        </button>
+                        <button onclick="answerArcade('subjuntivo')" class="btn-comic bg-pop-pink text-white py-3 text-base">
+                            🔴 DUDA / NEGACIÓN<br><span class="text-xs font-sans font-normal">(Subjuntivo)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="arcade-feedback" class="h-8 font-bold text-sm"></div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto border-t-4 border-black bg-white py-4 text-center text-xs font-bold text-black">
+        <p>Español Lengua Extranjera (ELE) • Material Didáctico interactivo para clases inolvidables</p>
+    </footer>
+
+    <script>
+        // Datos del Ejercicio 9
+        const fillData = [
+            { id: "f1", prefix: "1. No creo que", verb: "costar", suffix: "más de diez euros.", target: "cueste", hint: "No creo que... (Subjuntivo)" },
+            { id: "f2", prefix: "2. Pensamos que ella", verb: "saber", suffix: "lo que hace, no necesita ayuda.", target: "sabe", hint: "Pensamos que... (Indicativo)" },
+            { id: "f3", prefix: "3. No es verdad que Fran", verb: "montar", suffix: "a caballo regularmente.", target: "monte", hint: "No es verdad que... (Subjuntivo)" },
+            { id: "f4", prefix: "4. Es cierto que Pau Gasol", verb: "medir", suffix: "más de dos metros.", target: "mide", hint: "Es cierto que... (Indicativo)" },
+            { id: "f5", prefix: "5. No creo que", verb: "deber", suffix: "comparar a tu novia con tus ex.", target: "debas", alt: "deba", hint: "No creo que... (Subjuntivo)" },
+            { id: "f6", prefix: "6. Es verdad que la tostadora no", verb: "funcionar", suffix: "bien, está estropeada.", target: "funciona", hint: "Es verdad que... (Indicativo)" },
+            { id: "f7", prefix: "7. Está enfadado por lo que hicimos, pero no creo que nos", verb: "odiar", suffix: "", target: "odie", hint: "No creo que... (Subjuntivo)" },
+            { id: "f8", prefix: "8. Pienso que el viaje", verb: "durar", suffix: "unas tres horas y media.", target: "dura", hint: "Pienso que... (Indicativo)" }
+        ];
+
+        // Datos para el Minijuego Arcade
+        const arcadeData = [
+            { text: "«Creo que mañana (llover) ...»", type: "indicativo", explain: "«Creo que» afirma opinión ➔ Indicativo (llueve / lloverá)." },
+            { text: "«No pienso que ella (ser) mala persona...»", type: "subjuntivo", explain: "«No pienso que» niega opinión ➔ Subjuntivo (sea)." },
+            { text: "«Es verdad que el examen (ser) difícil...»", type: "indicativo", explain: "«Es verdad que» expresa certeza ➔ Indicativo (es)." },
+            { text: "«No es cierto que mi perro (hablar) español...»", type: "subjuntivo", explain: "«No es cierto que» niega certeza ➔ Subjuntivo (hable)." },
+            { text: "«Pienso que nosotros (deber) estudiar más...»", type: "indicativo", explain: "«Pienso que» expresa opinión ➔ Indicativo (debemos)." },
+            { text: "«No creo que ellos (llegar) a tiempo...»", type: "subjuntivo", explain: "«No creo que» niega opinión ➔ Subjuntivo (lleguen)." },
+            { text: "«Es cierto que la Tierra (girar) alrededor del Sol...»", type: "indicativo", explain: "«Es cierto que» es una certeza ➔ Indicativo (gira)." },
+            { text: "«No es verdad que yo (tener) un dinosaurio...»", type: "subjuntivo", explain: "«No es verdad que» niega la verdad ➔ Subjuntivo (tenga)." }
+        ];
+
+        let arcadeIndex = 0;
+        let arcadeScore = 0;
+
+        // Navegación entre secciones
+        function switchSection(sec) {
+            document.getElementById('sec-theory').classList.add('hidden');
+            document.getElementById('sec-fill').classList.add('hidden');
+            document.getElementById('sec-game').classList.add('hidden');
+
+            const btnInactive = "tab-btn btn-comic bg-white text-black px-3 py-2 text-sm sm:text-base";
+            const btnActive = "tab-btn btn-comic bg-pop-cyan text-white px-3 py-2 text-sm sm:text-base";
+
+            document.getElementById('nav-theory').className = btnInactive;
+            document.getElementById('nav-fill').className = btnInactive;
+            document.getElementById('nav-game').className = btnInactive;
+
+            if (sec === 'theory') {
+                document.getElementById('sec-theory').classList.remove('hidden');
+                document.getElementById('nav-theory').className = btnActive;
+            } else if (sec === 'fill') {
+                document.getElementById('sec-fill').classList.remove('hidden');
+                document.getElementById('nav-fill').className = btnActive;
+            } else if (sec === 'game') {
+                document.getElementById('sec-game').classList.remove('hidden');
+                document.getElementById('nav-game').className = btnActive;
+                startArcade();
+            }
+        }
+
+        // Alternar personaje interactivo en la Teoría
+        function toggleComicMode(mode) {
+            const thought = document.getElementById('thought-text');
+            const avatar = document.getElementById('character-avatar');
+
+            if (mode === 'afirmativo') {
+                thought.innerHTML = '"CREO QUE <u>PUEDO</u> ARREGLAR ESTO."';
+                thought.className = "font-comic text-xl sm:text-2xl text-emerald-700";
+                avatar.innerText = "😎";
+                avatar.style.transform = "scale(1.2) rotate(5deg)";
+            } else {
+                thought.innerHTML = '"NO CREO QUE <u>PUEDA</u> ARREGLAR ESTO..."';
+                thought.className = "font-comic text-xl sm:text-2xl text-rose-700";
+                avatar.innerText = "😰";
+                avatar.style.transform = "scale(1) rotate(0deg)";
+            }
+        }
+
+        // Renderizar Ejercicio 9
+        function renderFillSection() {
+            const container = document.getElementById('fill-questions-container');
+            container.innerHTML = '';
+
+            fillData.forEach(item => {
+                const card = document.createElement('div');
+                card.id = `card-${item.id}`;
+                card.className = "box-comic p-4 bg-slate-50 border-2 border-black flex flex-wrap items-center gap-2 text-sm sm:text-base font-medium font-sans";
+                card.innerHTML = `
+                    <span class="text-slate-900 font-bold">${item.prefix}</span>
+                    <input type="text" id="${item.id}" placeholder="(${item.verb})" class="border-2 border-slate-900 bg-white rounded-lg px-3 py-1.5 w-36 text-center font-bold text-slate-900 font-sans focus:outline-none focus:ring-2 focus:ring-pop-cyan placeholder:text-slate-400 placeholder:font-normal" autocomplete="off">
+                    <span class="text-slate-900 font-semibold">${item.suffix}</span>
+                    <span class="ml-auto bg-pop-yellow text-black text-xs font-bold px-3 py-1 rounded-full border border-black font-sans shadow-sm">${item.hint}</span>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function normalizeText(str) {
+            return str.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        }
+
+        function checkFillSection() {
+            let correct = 0;
+            fillData.forEach(item => {
+                const input = document.getElementById(item.id);
+                const card = document.getElementById(`card-${item.id}`);
+                const val = normalizeText(input.value);
+                const targetNorm = normalizeText(item.target);
+                const altNorm = item.alt ? normalizeText(item.alt) : null;
+
+                if (val === targetNorm || (altNorm && val === altNorm)) {
+                    card.className = "box-comic p-4 border-2 border-black flex flex-wrap items-center gap-2 text-sm sm:text-base font-medium font-sans correct-card";
+                    input.className = "border-2 border-emerald-700 bg-white rounded-lg px-3 py-1.5 w-36 text-center font-bold text-emerald-800 font-sans";
+                    correct++;
+                } else {
+                    card.className = "box-comic p-4 border-2 border-black flex flex-wrap items-center gap-2 text-sm sm:text-base font-medium font-sans incorrect-card";
+                    input.className = "border-2 border-rose-700 bg-white rounded-lg px-3 py-1.5 w-36 text-center font-bold text-rose-800 font-sans";
+                }
+            });
+
+            if (correct === fillData.length) {
+                confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+            }
+        }
+
+        function resetFillSection() {
+            fillData.forEach(item => {
+                const input = document.getElementById(item.id);
+                const card = document.getElementById(`card-${item.id}`);
+                input.value = '';
+                card.className = "box-comic p-4 bg-slate-50 border-2 border-black flex flex-wrap items-center gap-2 text-sm sm:text-base font-medium font-sans";
+                input.className = "border-2 border-slate-900 bg-white rounded-lg px-3 py-1.5 w-36 text-center font-bold text-slate-900 font-sans focus:outline-none focus:ring-2 focus:ring-pop-cyan";
+            });
+        }
+
+        // Lógica del Arcade Detector de Mentiras
+        function startArcade() {
+            arcadeIndex = 0;
+            arcadeScore = 0;
+            showArcadeQuestion();
+        }
+
+        function showArcadeQuestion() {
+            if (arcadeIndex >= arcadeData.length) {
+                document.getElementById('arcade-card').innerHTML = `
+                    <div class="text-center space-y-4 my-auto">
+                        <div class="text-6xl">🕵️‍♂️🏆</div>
+                        <h4 class="font-comic text-3xl sm:text-4xl text-black">¡DETECTOR COMPLETADO!</h4>
+                        <p class="font-bold text-lg">Precisión de Inteligencia: <span class="text-pop-pink text-2xl font-comic">${arcadeScore} / 8</span></p>
+                        <button onclick="startArcade()" class="btn-comic bg-pop-green text-white px-6 py-2 text-base">
+                            Repetir Prueba
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const current = arcadeData[arcadeIndex];
+            document.getElementById('arcade-step').innerText = `MUESTRA ${arcadeIndex + 1} DE 8`;
+            document.getElementById('arcade-score').innerText = `PUNTOS: ${arcadeScore}`;
+            document.getElementById('arcade-text').innerText = current.text;
+            document.getElementById('arcade-feedback').innerText = '';
+        }
+
+        function answerArcade(choice) {
+            const current = arcadeData[arcadeIndex];
+            const feedback = document.getElementById('arcade-feedback');
+
+            if (choice === current.type) {
+                arcadeScore++;
+                feedback.className = "h-8 font-bold text-sm text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full inline-block border border-emerald-400";
+                feedback.innerText = `¡CORRECTO! 🎯 ${current.explain}`;
+            } else {
+                feedback.className = "h-8 font-bold text-sm text-rose-700 bg-rose-100 px-3 py-1 rounded-full inline-block border border-rose-400";
+                feedback.innerText = `¡INCORRECTO! ❌ ${current.explain}`;
+            }
+
+            arcadeIndex++;
+            setTimeout(() => {
+                showArcadeQuestion();
+            }, 1400);
+        }
+
+        window.onload = function() {
+            renderFillSection();
+        };
+    </script>
+</body>
+</html>
